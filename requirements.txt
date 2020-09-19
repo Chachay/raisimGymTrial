@@ -1,0 +1,7 @@
+gym==0.17.2
+matplotlib
+numpy 
+pandas
+pfrl==0.1.0
+scipy
+torch==1.6.0

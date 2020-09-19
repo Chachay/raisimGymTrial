@@ -1,0 +1,106 @@
+--- ./raisimlib/raisimGymTorch/raisimGymTorch/env/raisim_gym.cpp	2020-09-21 08:34:37.730724200 +0200
++++ ./patch/raisim_gym.cpp	2020-09-18 17:47:16.000000000 +0200
+@@ -1,39 +1,64 @@
+-//----------------------------//
+-// This file is part of RaiSim//
+-// Copyright 2020, RaiSim Tech//
+-//----------------------------//
+-
+-#include <pybind11/pybind11.h>
+-#include <pybind11/stl.h>
+-#include <pybind11/eigen.h>
+-#include "Environment.hpp"
+-#include "VectorizedEnvironment.hpp"
+-
+-namespace py = pybind11;
+-using namespace raisim;
+-
+-#ifndef ENVIRONMENT_NAME
+-  #define ENVIRONMENT_NAME RaisimGymEnv
+-#endif
+-
+-PYBIND11_MODULE(RAISIMGYM_TORCH_ENV_NAME, m) {
+-  py::class_<VectorizedEnvironment<ENVIRONMENT>>(m, RSG_MAKE_STR(ENVIRONMENT_NAME))
+-    .def(py::init<std::string, std::string>())
+-    .def("init", &VectorizedEnvironment<ENVIRONMENT>::init)
+-    .def("reset", &VectorizedEnvironment<ENVIRONMENT>::reset)
+-    .def("observe", &VectorizedEnvironment<ENVIRONMENT>::observe)
+-    .def("step", &VectorizedEnvironment<ENVIRONMENT>::step)
+-    .def("setSeed", &VectorizedEnvironment<ENVIRONMENT>::setSeed)
+-    .def("close", &VectorizedEnvironment<ENVIRONMENT>::close)
+-    .def("isTerminalState", &VectorizedEnvironment<ENVIRONMENT>::isTerminalState)
+-    .def("setSimulationTimeStep", &VectorizedEnvironment<ENVIRONMENT>::setSimulationTimeStep)
+-    .def("setControlTimeStep", &VectorizedEnvironment<ENVIRONMENT>::setControlTimeStep)
+-    .def("getObDim", &VectorizedEnvironment<ENVIRONMENT>::getObDim)
+-    .def("getActionDim", &VectorizedEnvironment<ENVIRONMENT>::getActionDim)
+-    .def("getNumOfEnvs", &VectorizedEnvironment<ENVIRONMENT>::getNumOfEnvs)
+-    .def("turnOnVisualization", &VectorizedEnvironment<ENVIRONMENT>::turnOnVisualization)
+-    .def("turnOffVisualization", &VectorizedEnvironment<ENVIRONMENT>::turnOffVisualization)
+-    .def("stopRecordingVideo", &VectorizedEnvironment<ENVIRONMENT>::stopRecordingVideo)
+-    .def("startRecordingVideo", &VectorizedEnvironment<ENVIRONMENT>::startRecordingVideo)
+-    .def("curriculumUpdate", &VectorizedEnvironment<ENVIRONMENT>::curriculumUpdate);
+-}
++//----------------------------//
++// This file is part of RaiSim//
++// Copyright 2020, RaiSim Tech//
++//----------------------------//
++
++#include <pybind11/pybind11.h>
++#include <pybind11/stl.h>
++#include <pybind11/eigen.h>
++#include "Environment.hpp"
++#include "VectorizedEnvironment.hpp"
++
++#include "Yaml.hpp"
++
++namespace py = pybind11;
++using namespace raisim;
++
++#ifndef VECT_ENVIRONMENT_NAME
++  #define VECT_ENVIRONMENT_NAME RaisimGymVectEnv
++#endif
++
++#ifndef ENVIRONMENT_NAME
++  #define ENVIRONMENT_NAME RaisimGymEnv
++#endif
++PYBIND11_MODULE(RAISIMGYM_TORCH_ENV_NAME, m) {
++  py::class_<VectorizedEnvironment<ENVIRONMENT>>(m, RSG_MAKE_STR(VECT_ENVIRONMENT_NAME))
++    .def(py::init<std::string, std::string>())
++    .def("init", &VectorizedEnvironment<ENVIRONMENT>::init)
++    .def("reset", &VectorizedEnvironment<ENVIRONMENT>::reset)
++    .def("observe", &VectorizedEnvironment<ENVIRONMENT>::observe)
++    .def("step", &VectorizedEnvironment<ENVIRONMENT>::step)
++    .def("setSeed", &VectorizedEnvironment<ENVIRONMENT>::setSeed)
++    .def("close", &VectorizedEnvironment<ENVIRONMENT>::close)
++    .def("isTerminalState", &VectorizedEnvironment<ENVIRONMENT>::isTerminalState)
++    .def("setSimulationTimeStep", &VectorizedEnvironment<ENVIRONMENT>::setSimulationTimeStep)
++    .def("setControlTimeStep", &VectorizedEnvironment<ENVIRONMENT>::setControlTimeStep)
++    .def("getObDim", &VectorizedEnvironment<ENVIRONMENT>::getObDim)
++    .def("getActionDim", &VectorizedEnvironment<ENVIRONMENT>::getActionDim)
++    .def("getNumOfEnvs", &VectorizedEnvironment<ENVIRONMENT>::getNumOfEnvs)
++    .def("turnOnVisualization", &VectorizedEnvironment<ENVIRONMENT>::turnOnVisualization)
++    .def("turnOffVisualization", &VectorizedEnvironment<ENVIRONMENT>::turnOffVisualization)
++    .def("stopRecordingVideo", &VectorizedEnvironment<ENVIRONMENT>::stopRecordingVideo)
++    .def("startRecordingVideo", &VectorizedEnvironment<ENVIRONMENT>::startRecordingVideo)
++    .def("curriculumUpdate", &VectorizedEnvironment<ENVIRONMENT>::curriculumUpdate);
++
++  py::class_<ENVIRONMENT>(m, RSG_MAKE_STR(ENVIRONMENT_NAME))
++    .def(py::init([](std::string rsc, std::string cfg, bool visualize){
++      Yaml::Node cfg_;
++      Yaml::Parse(cfg_, cfg);
++      std::string raisim_home = std::getenv("RAISIM_HOME");
++      raisim::World::setActivationKey(
++        raisim::Path(raisim_home + "\\activation.raisim")
++      );
++      return new ENVIRONMENT(rsc, cfg_, visualize);
++    }))
++    .def("init", &ENVIRONMENT::init)
++    .def("reset", &ENVIRONMENT::reset)
++    .def("step", &ENVIRONMENT::step)
++    .def("observe", &ENVIRONMENT::observe)
++    .def("setSeed", &ENVIRONMENT::setSeed)
++    .def("isTerminalState", &ENVIRONMENT::isTerminalState)
++    .def("close", &ENVIRONMENT::close)
++    .def("getObDim", &ENVIRONMENT::getObDim)
++    .def("getActionDim", &ENVIRONMENT::getActionDim);
++}
