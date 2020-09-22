@@ -72,6 +72,7 @@ class myEnv(Env):
     def reset(self, **kwargs):
         self.env.reset()
         observation = np.zeros(self.num_obs, dtype=np.float32)
+        self.env.observe(observation)
         return observation.copy()
 
     def render(self, mode='human', **kwargs):
@@ -209,7 +210,7 @@ def main():
     # If seed=0 and processes=4, subprocess seeds are [0, 1, 2, 3].
     # If seed=1 and processes=4, subprocess seeds are [4, 5, 6, 7].
     process_seeds = np.arange(args.num_envs) + args.seed * args.num_envs
-    assert process_seeds.max() < 2 ** 32
+    assert process_seeds.max() < 2 ** 31
 
     args.outdir = experiments.prepare_output_dir(args, args.outdir)
 
@@ -219,7 +220,7 @@ def main():
 
         # Use different random seeds for train and test envs
         process_seed = int(process_seeds[process_idx])
-        env_seed = 2 ** 32 - 1 - process_seed if test else process_seed
+        env_seed = 2 ** 31 - 1 - process_seed if test else process_seed
         env.seed(env_seed)
         # Cast observations to float32 because our model uses float32
         env = pfrl.wrappers.CastObservationToFloat32(env)
