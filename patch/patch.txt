@@ -1,5 +1,5 @@
---- ./raisimlib/raisimGymTorch/raisimGymTorch/env/raisim_gym.cpp	2020-09-21 08:34:37.730724200 +0200
-+++ ./patch/raisim_gym.cpp	2020-09-18 17:47:16.000000000 +0200
+--- raisimlib/raisimGymTorch/raisimGymTorch/env/raisim_gym.cpp	2020-09-22 08:35:40.283088000 +0200
++++ patch/raisim_gym.cpp	2020-09-22 08:34:54.359055800 +0200
 @@ -1,39 +1,64 @@
 -//----------------------------//
 -// This file is part of RaiSim//
@@ -88,9 +88,9 @@
 +    .def(py::init([](std::string rsc, std::string cfg, bool visualize){
 +      Yaml::Node cfg_;
 +      Yaml::Parse(cfg_, cfg);
-+      std::string raisim_home = std::getenv("RAISIM_HOME");
++      std::string license_path = std::getenv("RAISIM_HOME");
 +      raisim::World::setActivationKey(
-+        raisim::Path(raisim_home + "\\activation.raisim")
++        raisim::Path(license_path + "\\activation.raisim")
 +      );
 +      return new ENVIRONMENT(rsc, cfg_, visualize);
 +    }))
