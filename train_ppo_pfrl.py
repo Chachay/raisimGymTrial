@@ -347,6 +347,7 @@ def main():
             eval_n_episodes=args.eval_n_runs,
             eval_interval=args.eval_interval,
             save_best_so_far_agent=True,
+            use_tensorboard=True
         )
     else:
         experiments.train_agent_batch_with_evaluation(
